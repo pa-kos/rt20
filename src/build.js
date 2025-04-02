@@ -1,3 +1,4 @@
+const pkg = require('../package.json');
 const fs = require('fs-extra');
 const path = require('path');
 const md = require('markdown-it')();
@@ -34,4 +35,4 @@ const filename = chance.string({ length: 8, pool: 'abcdefghijklmnopqrstuvwxyzABC
 fs.writeFileSync(path.join(__dirname, '../public', filename), html);
 
 console.log(`✅ 生成文件: ${filename}`);
-console.log(`🌐 访问URL: https://rt20.pages.dev/${filename}`);
+console.log(`🌐 访问URL: https://${pkg.config.domain}/${filename}`);

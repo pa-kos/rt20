@@ -1,10 +1,16 @@
 {
   "name": "rt20",
   "version": "1.0.0",
+  "description": "",
+  "main": "src/build.js",
+  "config": {
+    "domain": "rt20-9pq.pages.dev"
+  },
   "scripts": {
     "build": "node src/build.js",
     "deploy": "./deploy.sh",
-    "clean": "rm -rf public/*"
+    "clean": "rm -rf public/*",
+    "url": "echo 'https://'$(node -p 'require(\"./package.json\").config.domain)'/'$(ls public/*.html | head -n 1 | xargs basename)"
   },
   "dependencies": {
     "chance": "^1.1.9",

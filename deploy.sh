@@ -1,11 +1,19 @@
-#!/bin/bash
+#!/bin/sh
+
+# 构建
 npm run build
 
-# 使用 package.json 中的域名
-DOMAIN=$(node -p "require('./package.json').config.domain")
-NEW_FILE=$(ls public/*.html | head -n 1)
-echo "🌐 正确访问URL: https://${DOMAIN}/${NEW_FILE##*/}"
+# 获取最新HTML文件
+HTML_FILE=$(ls public/*.html | head -n 1)
+FILENAME=$(basename "$HTML_FILE")
 
+# 显示信息
+echo "✅ 生成文件: $FILENAME"
+echo "🌐 访问URL: https://$(node -p 'require("./package.json").config.domain')/$FILENAME"
+
+# Git提交
 git add -A
-git commit -m "Auto-deploy $(date +'%Y-%m-%d %H:%M:%S')"
+git commit -m "Auto-deploy $(date '+%Y-%m-%d %H:%M:%S')"
 git push origin main
+
+echo "🚀 部署完成！Cloudflare 更新约需1-3分钟"

@@ -1,20 +1,25 @@
 {
   "name": "rt20",
   "version": "1.0.0",
-  "description": "",
+  "description": "Auto-deploy static pages to Cloudflare",
   "main": "src/build.js",
-  "config": {
-    "domain": "rt20-9pq.pages.dev"
-  },
   "scripts": {
     "build": "node src/build.js",
-    "deploy": "./deploy.sh",
+    "deploy": "sh deploy.sh",
     "clean": "rm -rf public/*",
-    "url": "echo 'https://'$(node -p 'require(\"./package.json\").config.domain)'/'$(ls public/*.html | head -n 1 | xargs basename)"
+    "clean:win": "rd /s /q public",
+    "url": "node -e \"console.log('https://' + require('./package.json').config.domain + '/' + require('fs').readdirSync('./public')[0])\"",
+    "postinstall": "node -e \"if (process.platform === 'win32') { require('fs').chmodSync('deploy.sh', 0o755); console.log('✅ 已设置 deploy.sh 可执行权限') }\""
+  },
+  "config": {
+    "domain": "rt20-9pq.pages.dev"
   },
   "dependencies": {
     "chance": "^1.1.9",
     "fs-extra": "^11.1.1",
     "markdown-it": "^13.0.1"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 }

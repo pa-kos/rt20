@@ -4,40 +4,34 @@ const md = require('markdown-it')();
 const Chance = require('chance');
 const chance = new Chance();
 
-// 确保 public 目录存在
-fs.ensureDirSync(path.join(__dirname, '../public'));
+// 清空并重建 public 目录
+fs.emptyDirSync(path.join(__dirname, '../public'));
 
-// 读取模板文件
-const templatePath = path.join(__dirname, 'template.md');
-const templateContent = fs.readFileSync(templatePath, 'utf-8');
+// 读取模板
+const template = fs.readFileSync(path.join(__dirname, 'template.md'), 'utf-8');
 
-// 转换为 HTML
-const htmlContent = md.render(templateContent);
-
-// 生成完整的 HTML 文档
-const fullHtml = `<!DOCTYPE html>
-<html lang="en">
+// 生成HTML
+const html = `<!DOCTYPE html>
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Page</title>
-    <style>
-        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; }
-        a { color: #0070f3; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-    </style>
+  <meta charset="UTF-8">
+  <title>My Page</title>
+  <style>
+    body { font-family: Arial, max-width: 800px; margin: 0 auto; padding: 20px; }
+    a { color: #0070f3; }
+  </style>
 </head>
 <body>
-    ${htmlContent}
+  ${md.render(template)}
+  <!-- Build at: ${new Date().toISOString()} -->
 </body>
 </html>`;
 
-// 生成 8 位随机文件名（大小写字母加数字）
+// 生成随机文件名
 const filename = chance.string({ length: 8, pool: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' }) + '.html';
 
 // 写入文件
-const outputPath = path.join(__dirname, '../public', filename);
-fs.writeFileSync(outputPath, fullHtml);
+fs.writeFileSync(path.join(__dirname, '../public', filename), html);
 
-console.log(`File generated: ${filename}`);
-console.log(`URL will be: https://rt20.pages.dev/${filename}`);
+console.log(`✅ 生成文件: ${filename}`);
+console.log(`🌐 访问URL: https://rt20.pages.dev/${filename}`);

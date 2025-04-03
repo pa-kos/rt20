@@ -1,28 +1,10 @@
-const pkg = require('../package.json');
-const fs = require('fs-extra');
-const path = require('path');
-const md = require('markdown-it')({
-  html: true,         // 允许HTML标签
-  linkify: true,      // 自动转换链接
-  breaks: true        // 保留换行符
-});
-const Chance = require('chance');
-const chance = new Chance();
-
-// 清空并重建 public 目录
-fs.emptyDirSync(path.join(__dirname, '../public'));
-
-// 读取模板
-const template = fs.readFileSync(path.join(__dirname, 'template.md'), 'utf-8');
-
-// 生成完整HTML
-const html = `<!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
   <meta charset="UTF-8">
   <!-- 关键：响应式viewport -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>${pkg.name}</title>
+  <title>rt20</title>
   <style>
     /* 基础样式 */
     body {
@@ -99,8 +81,17 @@ const html = `<!DOCTYPE html>
 </head>
 <body>
   <div class="container">
-    <h1>😊 ${pkg.name}</h1>
-    ${md.render(template)}
+    <h1>😊 rt20</h1>
+    <p>😊本期标题：Bangni邦尼 - 漆皮六芒星 #yin纹 [72P]</p>
+<p>😊更多资源：QQ群322856208</p>
+<p>😊在线图片微云PDF（有压缩水印）QQ微信可打开：<br>
+<a href="https://pan.xunlei.com/s/VOMte3dUhui0DFRB5StTSG7MA1?pwd=eeap">👉 点击查看微云PDF</a><br>
+<button class="copy-btn" onclick="copyToClipboard('https://pan.xunlei.com/s/VOMte3dUhui0DFRB5StTSG7MA1?pwd=eeap')">📋 复制链接</button></p>
+<div class="divider"></div>
+<p>😊迅雷下载⬇️（无压缩无水印）：<br>
+<a href="https://pan.xunlei.com/s/VOMte3dUhui0DFRB5StTSG7MA1?pwd=eeap">🚀 迅雷高速下载</a><br>
+<button class="copy-btn" onclick="copyToClipboard('https://pan.xunlei.com/s/VOMte3dUhui0DFRB5StTSG7MA1?pwd=eeap')">📋 一键复制去迅雷打开</button></p>
+
   </div>
 
   <script>
@@ -133,16 +124,4 @@ const html = `<!DOCTYPE html>
     }
   </script>
 </body>
-</html>`;
-
-// 生成随机文件名
-const filename = chance.string({ 
-  length: 8, 
-  pool: 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789' 
-}) + '.html';
-
-// 写入文件
-fs.writeFileSync(path.join(__dirname, '../public', filename), html);
-
-console.log(`✅ 生成文件: ${filename}`);
-console.log(`🌐 访问URL: https://${pkg.config.domain}/${filename}`);
+</html>

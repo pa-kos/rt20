@@ -21,7 +21,7 @@ const processContent = (text) => {
     /(https?:\/\/[^\s]+)/g,
     (url) => `
 <div class="link-container">
-  <a href="${url}" target="_blank">👉 点击查看</a>
+  <a href="${url}" target="_blank">👉 点击查看微云PDF</a>
   <span class="url-display">${url}</span>
   <button class="copy-btn" onclick="copyToClipboard('${url.replace(/'/g, "\\'")}')">📋 复制链接</button>
 </div>

@@ -2,9 +2,9 @@ const pkg = require('../package.json');
 const fs = require('fs-extra');
 const path = require('path');
 
-// 简易版 markdown-it 配置
+// 配置 markdown-it 允许 HTML 标签
 const md = require('markdown-it')({
-  html: true,
+  html: true,         // 关键：允许 HTML 标签
   linkify: true,
   breaks: true
 });
@@ -12,38 +12,21 @@ const md = require('markdown-it')({
 // 清空并重建 public 目录
 fs.emptyDirSync(path.join(__dirname, '../public'));
 
-// 读取模板并智能处理
+// 读取模板
 const template = fs.readFileSync(path.join(__dirname, 'template.md'), 'utf-8');
 
-// 改进的链接处理逻辑
+// 处理内容：将纯URL转换为带按钮的HTML块
 const processContent = (text) => {
-  // 保留原始段落结构
-  const lines = text.split('\n');
-  let inLinkSection = false;
-  
-  return lines.map(line => {
-    // 跳过分隔线处理
-    if (line.startsWith('————————')) {
-      inLinkSection = !inLinkSection;
-      return line;
-    }
-
-    // 仅处理包含http的普通文本行
-    if (line.match(/https?:\/\//) && !line.match(/\[.*\]\(http/)) {
-      const url = line.match(/https?:\/\/[^\s]+/)[0];
-      const beforeText = line.split(url)[0];
-      
-      return `
-        ${beforeText}
-        <div class="link-container">
-          <a href="${url}" target="_blank">👉 点击查看</a>
-          <span class="url-display">${url}</span>
-          <button class="copy-btn" onclick="copyToClipboard('${url}')">📋 复制链接</button>
-        </div>
-      `;
-    }
-    return line;
-  }).join('\n');
+  return text.replace(
+    /(https?:\/\/[^\s]+)/g,
+    (url) => `
+<div class="link-container">
+  <a href="${url}" target="_blank">👉 点击查看</a>
+  <span class="url-display">${url}</span>
+  <button class="copy-btn" onclick="copyToClipboard('${url.replace(/'/g, "\\'")}')">📋 复制链接</button>
+</div>
+    `
+  );
 };
 
 // 生成HTML
@@ -60,11 +43,9 @@ const html = `<!DOCTYPE html>
       margin: 0 auto;
       padding: 20px;
       line-height: 1.6;
-      font-size: 16px;
-      color: #333;
     }
     .link-container {
-      margin: 10px 0;
+      margin: 15px 0;
       padding: 10px;
       background: #f5f5f5;
       border-radius: 5px;
@@ -84,7 +65,6 @@ const html = `<!DOCTYPE html>
       padding: 5px 10px;
       border-radius: 3px;
       cursor: pointer;
-      font-size: 14px;
     }
     .divider {
       margin: 20px 0;
@@ -98,7 +78,7 @@ const html = `<!DOCTYPE html>
   <script>
     function copyToClipboard(text) {
       navigator.clipboard.writeText(text)
-        .then(() => alert('链接已复制到剪贴板！'))
+        .then(() => alert('链接已复制！'))
         .catch(err => {
           // 兼容旧浏览器
           const textarea = document.createElement('textarea');

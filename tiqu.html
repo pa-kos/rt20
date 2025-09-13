@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图片URL提取器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            font-weight: 300;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .input-section, .output-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 1.3em;
+            color: #333;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .input-textarea, .output-textarea {
+            width: 100%;
+            min-height: 200px;
+            padding: 20px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            resize: vertical;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-textarea:focus, .output-textarea:focus {
+            outline: none;
+            border-color: #4facfe;
+            box-shadow: 0 0 0 3px rgba(79, 172, 254, 0.1);
+        }
+
+        .output-textarea {
+            background-color: #f8f9fa;
+            color: #495057;
+        }
+
+        .button-container {
+            text-align: center;
+            margin: 30px 0;
+        }
+
+        .extract-btn, .copy-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.1em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .extract-btn:hover, .copy-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .extract-btn:active, .copy-btn:active {
+            transform: translateY(0);
+        }
+
+        .copy-btn {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .stats {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+        }
+
+        .stats-item {
+            display: inline-block;
+            margin: 0 20px;
+            color: #666;
+        }
+
+        .stats-number {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #4facfe;
+        }
+
+        .placeholder {
+            color: #999;
+            font-style: italic;
+        }
+
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+        }
+
+        /* 图片容器样式 */
+        .img-container {
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 10px 0;
+            background: #f8f9fa;
+            text-align: center;
+            position: relative;
+            min-height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .img-container span {
+            color: #666;
+            font-size: 14px;
+            display: block;
+        }
+
+        .img-container img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 5px;
+            display: none;
+        }
+
+        .img-container img[style*="display: block"] {
+            display: block !important;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 10px;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .extract-btn, .copy-btn {
+                display: block;
+                width: 100%;
+                margin: 10px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🖼️ 图片URL提取器</h1>
+            <p>从HTML代码中提取 wdcdn.qpic.cn 图片链接并生成img标签</p>
+        </div>
+        
+        <div class="content">
+            <div class="input-section">
+                <h2 class="section-title">📝 输入HTML代码</h2>
+                <textarea 
+                    id="inputText" 
+                    class="input-textarea" 
+                    placeholder="请在此处粘贴包含 wdcdn.qpic.cn 图片链接的HTML代码..."
+                ></textarea>
+            </div>
+            
+            <div class="button-container">
+                <button id="extractBtn" class="extract-btn">🔍 提取图片</button>
+            </div>
+            
+            <div class="output-section">
+                <h2 class="section-title">📤 输出结果</h2>
+                <textarea 
+                    id="outputText" 
+                    class="output-textarea" 
+                    placeholder="提取的图片标签将显示在这里..."
+                    readonly
+                ></textarea>
+            </div>
+            
+            <div class="button-container">
+                <button id="copyBtn" class="copy-btn">📋 复制结果</button>
+            </div>
+            
+            <div class="stats">
+                <div class="stats-item">
+                    <div class="stats-number" id="imageCount">0</div>
+                    <div>张图片</div>
+                </div>
+                <div class="stats-item">
+                    <div class="stats-number" id="charCount">0</div>
+                    <div>个字符</div>
+                </div>
+            </div>
+            
+            <div id="successMessage" class="success-message">
+                ✅ 内容已复制到剪贴板！
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const inputText = document.getElementById('inputText');
+            const outputText = document.getElementById('outputText');
+            const extractBtn = document.getElementById('extractBtn');
+            const copyBtn = document.getElementById('copyBtn');
+            const imageCount = document.getElementById('imageCount');
+            const charCount = document.getElementById('charCount');
+            const successMessage = document.getElementById('successMessage');
+
+            // 提取图片URL的函数
+            function extractImageUrls(htmlCode) {
+                // 匹配 wdcdn.qpic.cn 的图片URL
+                const regex = /https?:\/\/wdcdn\.qpic\.cn\/[^\s"'<>]+/gi;
+                const urls = htmlCode.match(regex) || [];
+                
+                // 去重
+                const uniqueUrls = [...new Set(urls)];
+                
+                // 生成img标签
+                const imgTags = uniqueUrls.map(url => {
+                    return `<div class="img-container"><span>图片加载中...请稍候</span><img src="${url}" onload="this.previousElementSibling.style.display='none'; this.style.display='block';" onerror="this.previousElementSibling.innerText='❌ 这张图片挂了哦,QQ用户可在线查看微云PDF版或迅雷下载原图包，TG用户可下载原图包或讨论群里和我要微云PDF链接（如所有图片都出现此提醒则大概率是自身网络原因）';"></div>`;
+                });
+                
+                return {
+                    urls: uniqueUrls,
+                    imgTags: imgTags,
+                    result: imgTags.join('\n')
+                };
+            }
+
+            // 更新统计信息
+            function updateStats(result) {
+                imageCount.textContent = result.urls.length;
+                charCount.textContent = result.result.length;
+            }
+
+            // 提取按钮点击事件
+            extractBtn.addEventListener('click', function() {
+                const htmlCode = inputText.value.trim();
+                
+                if (!htmlCode) {
+                    alert('请输入HTML代码！');
+                    return;
+                }
+                
+                const result = extractImageUrls(htmlCode);
+                
+                if (result.urls.length === 0) {
+                    outputText.value = '// 未找到 wdcdn.qpic.cn 的图片链接';
+                    updateStats({ urls: [], imgTags: [], result: outputText.value });
+                } else {
+                    outputText.value = result.result;
+                    updateStats(result);
+                }
+            });
+
+            // 复制按钮点击事件
+            copyBtn.addEventListener('click', function() {
+                const output = outputText.value.trim();
+                
+                if (!output) {
+                    alert('没有内容可复制！请先提取图片。');
+                    return;
+                }
+                
+                // 使用现代浏览器的 Clipboard API
+                if (navigator.clipboard && window.isSecureContext) {
+                    navigator.clipboard.writeText(output).then(function() {
+                        showSuccessMessage();
+                    }).catch(function(err) {
+                        fallbackCopyTextToClipboard(output);
+                    });
+                } else {
+                    fallbackCopyTextToClipboard(output);
+                }
+            });
+
+            // 备用复制方法（兼容旧浏览器）
+            function fallbackCopyTextToClipboard(text) {
+                const textArea = document.createElement("textarea");
+                textArea.value = text;
+                textArea.style.top = "0";
+                textArea.style.left = "0";
+                textArea.style.position = "fixed";
+                textArea.style.opacity = "0";
+                
+                document.body.appendChild(textArea);
+                textArea.focus();
+                textArea.select();
+                
+                try {
+                    const successful = document.execCommand('copy');
+                    if (successful) {
+                        showSuccessMessage();
+                    } else {
+                        alert('复制失败，请手动复制内容');
+                    }
+                } catch (err) {
+                    alert('复制失败，请手动复制内容');
+                }
+                
+                document.body.removeChild(textArea);
+            }
+
+            // 显示成功消息
+            function showSuccessMessage() {
+                successMessage.style.display = 'block';
+                setTimeout(function() {
+                    successMessage.style.display = 'none';
+                }, 3000);
+            }
+
+            // 输入框内容变化时自动更新统计
+            inputText.addEventListener('input', function() {
+                const htmlCode = inputText.value.trim();
+                if (htmlCode) {
+                    const result = extractImageUrls(htmlCode);
+                    updateStats(result);
+                } else {
+                    imageCount.textContent = '0';
+                    charCount.textContent = '0';
+                }
+            });
+
+            // 键盘快捷键支持
+            document.addEventListener('keydown', function(e) {
+                // Ctrl+Enter 或 Cmd+Enter 提取图片
+                if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                    e.preventDefault();
+                    extractBtn.click();
+                }
+                
+                // Ctrl+C 或 Cmd+C 复制结果（当输出框有内容时）
+                if ((e.ctrlKey || e.metaKey) && e.key === 'c' && outputText.value.trim()) {
+                    e.preventDefault();
+                    copyBtn.click();
+                }
+            });
+        });
+    </script>
+</body>
+</html>
